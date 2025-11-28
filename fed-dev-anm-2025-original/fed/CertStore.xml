@@ -1,0 +1,153 @@
+<entityStoreData xmlns="http://www.vordel.com/2005/06/24/entityStore">
+<entityType xmlns="http://www.vordel.com/2005/06/24/entityStore" abstract="true" extends="Entity" name="RootChild"/>
+<entityType xmlns="http://www.vordel.com/2005/06/24/entityStore" extends="RootChild" name="ESConfiguration">
+        <constant name="_version" type="integer" value="42"/>
+        <!--
+            Give this singleton a key.
+        -->
+        <field isKey="true" name="name" type="string"/>
+        <!--
+            We use this field to verify that the passphrase for the
+            encryped data is synchronized between the server and client, and
+            between multiple invocations of the client
+        -->
+        <field name="passphraseTest" type="encrypted"/>
+        <field name="version" type="string"/>
+        <!-- The product key should never change for the lifetime of the product -->
+        <field name="productKey" type="string"/>
+        <field cardinality="?" name="gitrev" type="string"/>
+        <!--
+            This field contains the typerepo version used to create an EntityStore config.
+        -->
+        <field cardinality="1" name="typerepoVersion" type="string"/>
+    </entityType>
+<entityType xmlns="http://www.vordel.com/2005/06/24/entityStore" abstract="true" extends="RootChild" name="LoadableModule">
+        <constant name="_version" type="integer" value="2"/>
+        <constant name="loadorder" type="integer" value="1000000"/>
+        <field cardinality="?" name="classloader" type="^ClassLoader"/>
+
+        </entityType>
+<entityType xmlns="http://www.vordel.com/2005/06/24/entityStore" abstract="true" extends="LoadableModule" name="NamedLoadableModule">
+        <constant name="_version" type="integer" value="0"/>
+		<field cardinality="1" isKey="true" name="name" type="string"/>
+	</entityType>
+<entityType xmlns="http://www.vordel.com/2005/06/24/entityStore" extends="NamedLoadableModule" name="Certificates">
+        <constant name="_version" type="integer" value="1"/>
+		<constant name="class" type="string" value="com.vordel.store.cert.CertStore"/>
+        <constant name="loadorder" type="integer" value="150"/>
+        <componentType cardinality="*" name="Certificate"/>
+	</entityType>
+<entityType xmlns="http://www.vordel.com/2005/06/24/entityStore" extends="NamedLoadableModule" name="KeyPairs">
+    <constant name="_version" type="integer" value="0"/>
+		<constant name="class" type="string" value="com.vordel.store.keypairs.KeyPairs"/>
+    <constant name="loadorder" type="integer" value="150"/>
+    <componentType cardinality="*" name="KeyPair"/>
+	</entityType>
+<entityType xmlns="http://www.vordel.com/2005/06/24/entityStore" extends="NamedLoadableModule" name="PGPKeyPairs">
+    <constant name="_version" type="integer" value="1"/>
+    <constant name="class" type="string" value="com.vordel.store.pgpkeypairs.PGPKeyPairs"/>
+    <constant name="loadorder" type="integer" value="600"/>
+    <componentType cardinality="*" name="PGPKeyPair"/>
+    </entityType>
+<entityType xmlns="http://www.vordel.com/2005/06/24/entityStore" extends="Entity" name="Certificate">
+        <constant name="_version" type="integer" value="6"/>
+	<field isKey="true" name="dname" type="string"/>
+	<field cardinality="?" name="issuer" type="^Certificate"/>
+	<field cardinality="1" name="content" type="binary"/>
+
+        <!--
+		    One of key or keyId should be specified: if
+		    "engine" is "RAW" (or absent), then "key"
+		    contains the encrypted base64 encoded PKCS8
+		    key. Otherwise, keyId specifies an ID for a key
+		    as stored on a HSM engine identified by "engine".
+		    The meaning and interpretation of keyId is
+		    completely at the discretion of the engine: it will
+                    be loaded via ENGINE_load_private_key()
+        -->
+
+	<field cardinality="?" name="key" type="encrypted"/>
+	<field cardinality="?" name="engine" type="string"/>
+	<field cardinality="?" name="keyId" type="string"/>
+
+	<!-- conversation in engine to use when asked for input... -->
+	<field cardinality="?" name="conversation" type="string"/>
+	
+	<field cardinality="?" name="certificateRealm" type="string"/>
+	<field cardinality="1" default="LOCAL" name="storeType" type="string"/>
+
+    </entityType>
+<entityType xmlns="http://www.vordel.com/2005/06/24/entityStore" extends="Entity" name="KeyPair">
+    <constant name="_version" type="integer" value="0"/>
+		<field isKey="true" name="alias" type="string"/>
+    <field cardinality="?" default="RSA" name="algorithm" type="string"/>
+		<field cardinality="?" name="publicKey" type="binary"/>
+		<field cardinality="?" name="privateKey" type="encrypted"/>
+	</entityType>
+<entityType xmlns="http://www.vordel.com/2005/06/24/entityStore" extends="Entity" name="PGPKeyPair">
+        <constant name="_version" type="integer" value="0"/>
+        <field isKey="true" name="alias" type="string"/>
+        <field cardinality="?" name="publicKey" type="binary"/>
+        <field cardinality="?" name="privateKey" type="encrypted"/>
+    </entityType>
+<entityType xmlns="http://www.vordel.com/2005/06/24/entityStore" extends="Entity" name="Root">
+  <componentType cardinality="*" name="RootChild"/>
+  <field isKey="true" name="name" type="string"/>
+
+  <!-- Used by the FileStore implementation, records the last time the store was written -->
+  <field name="lastModificationTime" type="utctime"/>
+
+  <!-- Used by the in-memory ad filestore implementations, records the next integer to use as a PK -->
+  <field name="pkInc" type="integer"/>
+
+  <!-- 
+          Provide a user-extensible means to tag an individual store, that won't interfere with federated store 
+      composition. If it's done in the root node, then there are no synchronization issues across stores in the
+      federated context, as each store naturally has full control of its root node, with only the Primary Store's
+      root being visible via the federated view.
+
+          Provide a pair of multivalued string fields. It is up to the user to ensure that the contents are
+      synchronized. One string list acts as the key, with the entry in the corresponding list at the same index giving
+      the value for that key, e.g.
+      
+          tagName[0] = 'gitrev'
+          tagName[0] = 'e39a0a77b92c5b82e5a662a7de0b33daeadfb170'
+          
+      equates to the mapping 'gitrev' -> 'e39a0a77b92c5b82e5a662a7de0b33daeadfb170'
+  -->
+  <field cardinality="*" name="tagName" type="string"/>
+  <field cardinality="*" name="tagValue" type="string"/>
+</entityType>
+<entity xmlns="http://www.vordel.com/2005/06/24/entityStore"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="Root" entityPK="0">
+	<fval name="name"><value>System Components</value></fval>
+</entity>
+<entity xmlns="http://www.vordel.com/2005/06/24/entityStore"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="ESConfiguration" entityPK="-1986137514721043027" parentPK="0">
+	<fval name="name"><value>Entity Store Configuration</value></fval>
+	<fval name="passphraseTest"><value>aHR0cDsvL3d3dy52b3JkZWwuY29t</value></fval>
+	<fval name="productKey"><value>VordelNodeManager</value></fval>
+	<fval name="typerepoVersion"><value>1.42.3</value></fval>
+	<fval name="version"><value>7.7.0</value></fval>
+</entity>
+<entity xmlns="http://www.vordel.com/2005/06/24/entityStore"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="Certificates" entityPK="-3127245918010612613" parentPK="0">
+	<fval name="name"><value>Certificate Store</value></fval>
+</entity>
+<entity xmlns="http://www.vordel.com/2005/06/24/entityStore"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="Certificate" entityPK="-1756262257436122805" parentPK="-3127245918010612613">
+	<fval name="content"><value>MIIC4zCCAcugAwIBAgIGAZqS/pr6MA0GCSqGSIb3DQEBCwUAMBExDzANBgNVBAMMBkRvbWFpbjAg&#xD;&#xA;Fw0yNTExMTAxODA1NTBaGA8yMTI1MTAyNDE4MDU1MVowETEPMA0GA1UEAwwGRG9tYWluMIIBIjAN&#xD;&#xA;BgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4TsmlH32m4s5jGd1gF5UP6bZlgwdszYhiX+fNl3C&#xD;&#xA;LvBIY822lp+O9ox2JR5AEqeNCqwT4KkO72NfgV0og4Ii+W2wrz5ePVZCzJke+RX6LNi0n0nVd+vx&#xD;&#xA;z3o2ovrX2m8Pd0M+/ixj6FnurCl4Kdy4lCtfTP+nlSrspap9jakJs46sYvyHBJvAyrtzyRyW8bwO&#xD;&#xA;VoQSgmZTVptFBFNtBZHxAHf01MG0aiMMfMkBVL9AgmGVir6wAsg+Ynh69ZlAdVWEiZHQePeEQt76&#xD;&#xA;HaVNWYfXzGTzgwdbB8C8NqYVd/1FYu0n5NAWZDxRl6J75dpU6bFbIM9Nvt6eMhuYK+QcwOzsPwID&#xD;&#xA;AQABoz8wPTAPBgNVHRMECDAGAQH/AgEAMAsGA1UdDwQEAwICvDAdBgNVHQ4EFgQU7Wzo3DI/5BnJ&#xD;&#xA;s59mgfq89udizQ4wDQYJKoZIhvcNAQELBQADggEBAK1oUYQojW16Q3yfEC8S/DTRh6gT4QRlAHC9&#xD;&#xA;7dLacP3TNRHVT8599AA+ya7TXSOCx73T8wuZAbTnWd4lMMRHXcfe2EZlP8sHyVbpjY3e+9OXU9hp&#xD;&#xA;p+QLRKLtuXrwT1e8KgB8ZYob71OEE6o/kssy8Sb+SUiksLIjSdrT/RTjoo0GTSMamV41425vzqG0&#xD;&#xA;tJctUOdxaL+fela+lzg/KlfaxV5J2gqX9BOzzZPs8AdApqcNWKkVuC7TYlbNlBgEKHU8uVDESn5F&#xD;&#xA;w31t+tsLXBK3n97E4NWn0b3DNeOQ3Q1kqISMq9EUaqDq5/8JDsggeUGaHviq6p6c66MdRzKLrLQh&#xD;&#xA;P/o=</value></fval>
+	<fval name="dname"><value>CN=Domain</value></fval>
+	<fval name="storeType"><value>LOCAL</value></fval>
+</entity>
+<entity xmlns="http://www.vordel.com/2005/06/24/entityStore"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="Certificate" entityPK="4221127082326204674" parentPK="-3127245918010612613">
+	<fval name="content"><value>MIIDjzCCAnegAwIBAgIGAZqS/pr8MA0GCSqGSIb3DQEBCwUAMBExDzANBgNVBAMMBkRvbWFpbjAg&#xD;&#xA;Fw0yNTExMTAxOTI1NDNaGA8yMTI1MTAyNDE5MjU0M1owQjEWMBQGCgmSJomT8ixkARkWBmhvc3Qt&#xD;&#xA;MjEQMA4GA1UECwwHZ3JvdXAtMTEWMBQGA1UEAwwNbm9kZW1hbmFnZXItMjCCASIwDQYJKoZIhvcN&#xD;&#xA;AQEBBQADggEPADCCAQoCggEBAOwzUrL62rbyAEeAXOpN1dWT2q/fs7OaD0bqI+SDL/buEgxQWyEJ&#xD;&#xA;GILjtQOPCwLLYCMDGvwGcADU+8eVTsCrBeI6tWUlNUKJCMbS5zP5MEBhrnyuGC+6C4wm0HZUveap&#xD;&#xA;U6JZ6XFmV7EwsO2+Yb8qLjjjq9s642lY3EKfJnxxm6maNsgrsmQOpGkQVj6n0EaXJzuyrstYe4wu&#xD;&#xA;rdk9jdLNPG2SqHkjwfQLddyGuX0oMBu/nejwCd1pAXu2hFbgR8pec0u2vgLMPB24Hr10f/jMXKwR&#xD;&#xA;bzc9pZi9iYgnX+Gxy8gpMYpQ76rBQXrOjqGHjL0Vo+1m4qGgN+rfQvMU+d/C+4MCAwEAAaOBuTCB&#xD;&#xA;tjAJBgNVHRMEAjAAMAsGA1UdDwQEAwIDmDAsBgNVHSUEJTAjBggrBgEFBQcDAQYIKwYBBQUHAwIG&#xD;&#xA;DSsGAQQBgYxOCgEBAgEwLgYDVR0RBCcwJYIdaXAtMTAtMTkyLTEzMi04Mi5lYzIuaW50ZXJuYWyH&#xD;&#xA;BArAhFIwHQYDVR0OBBYEFKinolk+evAZOXJX7/QddeTWlYkvMB8GA1UdIwQYMBaAFO1s6NwyP+QZ&#xD;&#xA;ybOfZoH6vPbnYs0OMA0GCSqGSIb3DQEBCwUAA4IBAQBngNndBB9eoaVciZ9dlMJrrkq2MoXIxFiG&#xD;&#xA;GNSMIZsX9KsZNFa+bv+myVp53TViGlfEPqCoaCIbF/kMpJ2HbMOWRCqZa7BXBjXn8XBon5eU2vRI&#xD;&#xA;fZtV1quyIoDmoCugp65wC7sNs2y0yfj+7Z44MAXgkxwUcy0FrD9claH5kMmmDDYTwQo2SN4QozZK&#xD;&#xA;5F9r7V3yqClUh8iJ4poTL8GK2JWeRFMDPSprdaYcq9pNK3DiEv2g/m1QpVJr5x26XYzy2dAn2tAw&#xD;&#xA;TsNDsQIcusBG0/wHsKg/2JbiSKJ1nkgTGKpJD/OuCh5faLEsWR4XMZYh4W6rhwhGpPAQIaU2dvrE&#xD;&#xA;5aHA</value></fval>
+	<fval name="dname"><value>topology-cert</value></fval>
+	<fval name="issuer"><value contentType="reference">
+<key type='Certificates'><id field='name' value='Certificate Store'/><key type='Certificate'><id field='dname' value='CN=Domain'/></key></key>	</value></fval>
+	<fval name="key"><value>MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDsM1Ky+tq28gBHgFzqTdXVk9qv&#xA;37Ozmg9G6iPkgy/27hIMUFshCRiC47UDjwsCy2AjAxr8BnAA1PvHlU7AqwXiOrVlJTVCiQjG0ucz&#xA;+TBAYa58rhgvuguMJtB2VL3mqVOiWelxZlexMLDtvmG/Ki4446vbOuNpWNxCnyZ8cZupmjbIK7Jk&#xA;DqRpEFY+p9BGlyc7sq7LWHuMLq3ZPY3SzTxtkqh5I8H0C3Xchrl9KDAbv53o8AndaQF7toRW4EfK&#xA;XnNLtr4CzDwduB69dH/4zFysEW83PaWYvYmIJ1/hscvIKTGKUO+qwUF6zo6hh4y9FaPtZuKhoDfq&#xA;30LzFPnfwvuDAgMBAAECggEAapXQVDax2otCyAErLIn6G/ov3VxXhYzYJvqCPtxaGRYeK9NZBAPM&#xA;PUhOxy/V2ql2lOYSV7b59M4nXc1I79Vc/tTaRS2wpnka7kl+jmv8s5jAub9/542PJ2vedv9PgFZZ&#xA;iLIFDyiNGsarmGToS/DXUdGfG/srYr74CdIydkZ35WR1KpqUjoukDPVKydb0lCvVK0ZDkqAJS9RZ&#xA;0PY8SuuOI0anN6hg5gZj2Yr42QMcsrxAoGpcRidLz9StlhfF9JVw25GcwltaN/YylzLmnZoFcDNE&#xA;RR2s4Wtzk+yJDeVUpPd6Ni5aYJLX5d79pkp7PuR65xm4HvhosWwwDty0HsHC0QKBgQD6uXont+Su&#xA;QoUXjM52VyOtggHa1O4UoNNGZSf0ENd8qVGWGHVD8wGYCu+oyQZ+5M0PXSzNgeb5Q4aBXpCdK/Ld&#xA;n12Hj65+/mINGtNM2XDzHmiUoZRW/f9bZam219kFBuHYociu0R5Zr6wO6AgJzQITD82g8nX8CRe5&#xA;O7dYsdj/8QKBgQDxK5zHJjwXbeH2ar9iAISXL70WNgARSGPyXCc/sfShxPLRaKCaPxOSRmAHYGK4&#xA;u+oeNvksEgBjzZaiSMhEWnbO5XJEC3jeS5sSqpFTUeeptnFDQSUkJN2np4IoUYOcLQltMXdWlSmO&#xA;U+glXd51eDNfCwNuAfet2537qy357e5mswKBgQDCK1Yg4FdnZPixjkhueXmV67MICBMBQrOcNsbE&#xA;Sy62ymH2vaZDIzS+zOlha51uND9igKQr20hHDjZihhu0vM5vN/Y0/98BVnwU7gtp3pOMlKYlRSUe&#xA;YcKaw5a1lV/qdrP9Ev3Z9PVuO5AiUyu2e1/55yk2Vc9tipUmzMpnFASb4QKBgHBnJEYJgv5kf2mL&#xA;LTHvDd0tKdL9TiC//Z1K6Bwew+bV1VpWimv5tBR76mvlt31kT+TPOGka5sWdX3S5uWVqSG97rzsZ&#xA;obbxxA/6IYuU5AVMfBOdfEMRT6HBR7+k5lNXBkq3QGjBUsH8R3mK+5ECeeb1Sh7umdKVRley29Xd&#xA;2DxTAoGBAJceAI2VeJG3Lb0rNDnL0ha6XuWW+03n8AJ9BTzYjqnOgUYOIyLtc6WNcJQ/PT1iuu9L&#xA;LyxvtTIH5rjGMcLTUb84BOuMQDQoQqN2OmWEp88yyW57nJ+aHC9KoFl+QiTcAU2asrukDVZzgoKi&#xA;eanyP2Fv54bt+nsSEWxcoeRyc06p</value></fval>
+	<fval name="storeType"><value>LOCAL</value></fval>
+</entity>
+<entity xmlns="http://www.vordel.com/2005/06/24/entityStore"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="KeyPairs" entityPK="2147234957080626275" parentPK="0">
+	<fval name="name"><value>Key Pairs</value></fval>
+</entity>
+<entity xmlns="http://www.vordel.com/2005/06/24/entityStore"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" type="PGPKeyPairs" entityPK="5914914750373127667" parentPK="0">
+	<fval name="name"><value>PGP Key Pairs</value></fval>
+</entity>
+</entityStoreData>
