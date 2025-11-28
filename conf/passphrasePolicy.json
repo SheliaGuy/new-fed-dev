@@ -1,0 +1,85 @@
+{
+    "enabled": false,
+    "assertions": [
+      {
+        "matchCount": "*",
+        "enabled": true,
+        "description": "general",
+        "assertion": [
+          {
+            "enabled": true,
+            "name": "Passphrase cannot be empty",
+            "resourceID": "PASSWORD_NOT_NULL"
+          },
+          {
+            "enabled": true,
+            "name": "Passphrase must be longer than N characters",
+            "minLength": "4",
+            "resourceID": "PASSWORD_MIN_LENGTH"
+          },
+          {
+            "enabled": true,
+            "name": "Passphrase cannot be the same as the domain/node manager/group name",
+            "resourceID": "PASSWORD_NOT_EQUAL_TO_ACC_NAME"
+          },
+          {
+            "enabled": true,
+            "name": "Passphrase cannot be the same as the reverse of domain/node manager/group name",
+            "resourceID": "PASSWORD_NOT_EQUAL_TO_REV_ACC_NAME"
+          },
+          {
+            "enabled": false,
+            "name": "Passphrase cannot contain domain/node manager/group name",
+            "resourceID": "PASSWORD_NOT_CONTAINING_ACC_NAME"
+          },
+          {
+            "enabled": false,
+            "name": "Passphrase Distance",
+            "resourceID": "PASSWORD_DISTANCE"
+          },
+          {
+            "enabled": false,
+            "name": "Passphrase Lifetime",
+            "resourceID": "PASSWORD_LIFETIME"
+          },
+          {
+            "enabled": false,
+            "name": "Passphrase not in history",
+            "resourceID": "PASSWORD_NOT_IN_HISTORY"
+          }
+        ]
+      },
+      {
+        "matchCount": "*",
+        "enabled": true,
+        "description": "composition",
+        "assertion": [
+          {
+            "enabled": true,
+            "name": "Must contain an upper case character",
+            "resourceID": "MUST_HAVE_UPPER_CASE",
+            "count": 1
+          },
+          {
+            "enabled": true,
+            "name": "Must contain an lower case character",
+            "resourceID": "MUST_HAVE_LOWER_CASE",
+            "count": 1
+          },
+          {
+            "enabled": true,
+            "name": "Must contain a number",
+            "resourceID": "MUST_CONTAIN_DIGIT",
+            "count": 1
+          },
+          {
+            "enabled": true,
+            "name": "Must contain a special character",
+            "characters": "~!@#$%^&*()-_=+\\|[{}];:'\",<.>/ ?",
+            "count": 1,
+            "resourceID": "MUST_CONTAIN_SPECIAL_CHARACTERS"
+          }
+        ]
+      }
+    ]
+}

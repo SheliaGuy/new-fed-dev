@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    XML for configuration files
+-->
+
+<ConfigurationFragment>
+    <set property="server.entitystore.url" value="federated:file:///$%VINSTDIR/conf/fed/configs.xml"/>
+    <set property="server.entitystore.secret" value=""/>
+    <set property="server.tracelevel" value="INFO"/>
+</ConfigurationFragment>

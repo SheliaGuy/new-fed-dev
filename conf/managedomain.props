@@ -1,0 +1,4 @@
+#Configure the property "passphrase_exec" to an execution file path which contains the password for Admin Node Manager and is used for authentication.
+#Example file path in windows : C:\\Users\\<UserID>\\apigateway\\execute.bat (or) C:/Users/<UserID>/apigateway/execute.bat
+#Example file path in Unix : /home/<UserID>/apigateway/conf/execute.sh
+password_exec=#/home/<UserID>/apigateway/conf/execute.sh

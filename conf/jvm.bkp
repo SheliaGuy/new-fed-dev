@@ -1,0 +1,3 @@
+<ConfigurationFragment>
+  <VMArg name="-Dcom.axway.sso.domain.name=engieenergia.com.br" />
+</ConfigurationFragment>

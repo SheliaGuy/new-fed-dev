@@ -1,0 +1,13 @@
+openssl_conf	  	= openssl_init
+
+[openssl_init]
+providers = provider_sect
+
+[provider_sect]
+fips = fips_sect
+
+[fips_sect]
+activate = 1
+conditional-errors = 1
+security-checks = 1
+module-mac = B9:27:BB:F9:5E:00:EB:E8:DA:BE:F7:0B:A1:23:66:D1:AF:19:A0:C4:4D:3B:C2:7A:F5:07:1C:BD:F6:23:D7:3C

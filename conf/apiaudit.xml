@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    REST API Domain Audit Configuration.                      
+    A series of rules to control entry to the domain audit log.
+    
+    The rules are checked in order with the method, path and pathMatch elements used to  
+    determine whether a rule is triggered. If a rule is triggered all subsequent rules 
+    are ignored.
+    
+    <method> Comma seperated list of HTTP methods (required, wildcard * permitted)
+    <path> A regular expression representing a URL Path (required, wildcard * permitted)
+    <pathMatch> Relates to the path above(required), possible options are:
+                'MATCHES', 'BEGINS_WITH', 'ENDS_WITH', 'CONTAINS', 
+                'DOES_NOT_CONTAIN', 'IS', 'IS_NOT', 'DOES_NOT_MATCH'
+    
+    Specify what gets printed to the domain audit log using the following elements:
+    
+    <queryArgs> Wildcard * indicates that all query arguments are available for printing. 
+                To redact certain query string arguments you must explicitly list only the arguments
+                you wish to show(comma separated). Leaving this blank or ommiting the element
+                indicates that no query arguments will be displayed. (optional)
+    <outputMessage> Leaving this blank or ommitting the element means that no entry will be made 
+                to the domain audit log for this rule. (optional)
+-->
+<apiauditlog>
+
+    <!--
+        Specific rules such as the filtering of certain service API's
+    -->
+
+    <apiauditrule>
+        <method>GET</method>
+        <path>api/monitoring/metrics</path>
+        <pathMatch>BEGINS_WITH</pathMatch>
+    </apiauditrule>
+
+    <apiauditrule>
+        <method>GET</method>
+        <path>^api/domainaudit/search$</path>
+        <pathMatch>MATCHES</pathMatch>
+        <queryArgs>*</queryArgs>
+        <outputMessage>Performing domain audit lookup for service '${serviceName}' over a ${queryArgValues.get("ago")} interval</outputMessage>
+    </apiauditrule>
+
+    <apiauditrule>
+        <method>GET</method>
+        <path>^ops/search$</path>
+        <pathMatch>MATCHES</pathMatch>
+        <queryArgs>*</queryArgs>
+        <outputMessage>Performing search for ${queryArgValues.get("protocol")} traffic information over a ${queryArgValues.get("ago")} interval</outputMessage>
+    </apiauditrule>
+
+    <apiauditrule>
+        <method>GET</method>
+        <path>^ops/getserviceconfig$</path>
+        <pathMatch>MATCHES</pathMatch>
+        <outputMessage>Retrieve configuration for service '${serviceName}'</outputMessage>
+    </apiauditrule>
+
+    <apiauditrule>
+        <method>GET</method>
+        <path>^ops/setserviceconfig$</path>
+        <pathMatch>MATCHES</pathMatch>
+        <queryArgs>*</queryArgs>
+        <outputMessage>Update configuration for service '${serviceName}': ${queryArgs}</outputMessage>
+    </apiauditrule>
+
+    <apiauditrule>
+        <method>GET</method>
+        <path>^ops/performance$</path>
+        <pathMatch>MATCHES</pathMatch>
+        <queryArgs>*</queryArgs>
+        <outputMessage>Performing a lookup on performance metrics over a ${queryArgValues.get("ago")} interval</outputMessage>
+    </apiauditrule>
+
+    <apiauditrule>
+        <method>GET</method>
+        <path>^ops/stream/[a-zA-Z0-9_]*/\*/circuitpath$</path>
+        <pathMatch>MATCHES</pathMatch>
+        <queryArgs>*</queryArgs>
+        <outputMessage>Transaction information downloaded for transaction: ${path}</outputMessage>
+    </apiauditrule>
+
+    <apiauditrule>
+        <method>GET</method>
+        <path>api/ama/</path>
+        <pathMatch>BEGINS_WITH</pathMatch>
+        <outputMessage>Performing a lookup for messaging information on: ${path}</outputMessage>
+    </apiauditrule>
+
+    <!--
+        Catch all rules. 
+        Please Note: Disabled by default but can be enabled if required for debug purposes etc.
+    -->	
+    
+<!--
+    <apiauditrule>
+        <method>GET</method>
+        <path>*</path>
+        <pathMatch>MATCHES</pathMatch>	    
+        <queryArgs>*</queryArgs>
+        <outputMessage>Retrieve request on API ${path} with arguments ${queryArgs}</outputMessage>
+    </apiauditrule>
+  
+    <apiauditrule>
+        <method>POST</method>
+        <path>*</path>
+        <pathMatch>MATCHES</pathMatch>	    
+        <queryArgs>*</queryArgs>
+        <outputMessage>Create request on API ${path} with arguments ${queryArgs}</outputMessage>
+    </apiauditrule>
+
+    <apiauditrule>
+        <method>PATCH,PUT</method>
+        <path>*</path>
+        <pathMatch>MATCHES</pathMatch>	    
+        <queryArgs>*</queryArgs>
+        <outputMessage>Update request on API ${path} with arguments ${queryArgs}</outputMessage>
+    </apiauditrule>
+
+    <apiauditrule>
+        <method>DELETE</method>
+        <path>*</path>
+        <pathMatch>MATCHES</pathMatch>	    
+        <queryArgs>*</queryArgs>
+        <outputMessage>Delete request on API ${path} with arguments ${queryArgs}</outputMessage>
+    </apiauditrule>
+    
+ -->
+
+</apiauditlog>
