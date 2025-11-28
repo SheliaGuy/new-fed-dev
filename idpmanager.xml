@@ -1,0 +1,15 @@
+<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="http://www.okta.com/exk9sfpbymdyj1Xzn0x7">
+<md:IDPSSODescriptor WantAuthnRequestsSigned="false" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+<md:KeyDescriptor use="signing">
+<ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+<ds:X509Data>
+<ds:X509Certificate>MIIDrjCCApagAwIBAgIGAZRGxmjxMA0GCSqGSIb3DQEBCwUAMIGXMQswCQYDVQQGEwJVUzETMBEG A1UECAwKQ2FsaWZvcm5pYTEWMBQGA1UEBwwNU2FuIEZyYW5jaXNjbzENMAsGA1UECgwET2t0YTEU MBIGA1UECwwLU1NPUHJvdmlkZXIxGDAWBgNVBAMMD2VuZ2llYXBwcHJldmlldzEcMBoGCSqGSIb3 DQEJARYNaW5mb0Bva3RhLmNvbTAeFw0yNTAxMDgxNjM1MzVaFw0zNTAxMDgxNjM2MzVaMIGXMQsw CQYDVQQGEwJVUzETMBEGA1UECAwKQ2FsaWZvcm5pYTEWMBQGA1UEBwwNU2FuIEZyYW5jaXNjbzEN MAsGA1UECgwET2t0YTEUMBIGA1UECwwLU1NPUHJvdmlkZXIxGDAWBgNVBAMMD2VuZ2llYXBwcHJl dmlldzEcMBoGCSqGSIb3DQEJARYNaW5mb0Bva3RhLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEP ADCCAQoCggEBAMtuWDuZv8E/wWH9nRXssFf1MqluoR5ZJwRnC2oMoM+KKsMVhUjib6HAuJQLexkf xzBFv4/X6Pls27XYy/pVR0S8yS70WO3BTLqMO2LHmcNX6SA1wE+sBHsTAH45bcgLxmtnKvcowATj 9GLhnWHZGnTLskfhEC/g9/Fap5EsT7uHmEjeVXGcsODzTeSHz1q/ykJmvx/u98Og5nDEs14av/yu Sin4rqVCf0jKArW4CbTpLKXz+L5Z6L6YX4o/vBT+vxsENO9S3/exPJCOIyecRCJ3LgPPXNeU+FX+ iF17CCn/TZ9aRyK7IN22MXQbhhjJh9r0H4Gc+d+JddMSj6xEoBsCAwEAATANBgkqhkiG9w0BAQsF AAOCAQEAhZC6Nyecd3S7eOU4Eg595+yOwLJHXFW6IeE7rbIFHVrPSLUT+yKLq1u9uD6z9yF8vAHB /07Gll8jcOxeSS6qE1SeqwLw6uj8vq/0Kiz58mXM4RgmBnY5Qj/sz9EJOXSIGq6Ynnf9AoSBR8+l V5CplECDBg2O+DcwJAoP3oKHoTu+Kh16SGrMr7eQaC2kyaA9KtBMj2ZOoF6sa8Rf7DznqohY52gx fHK7ynQdDj5YNSmd5U5tyyVFwou3Gt4j6SY9TvjSrKztZEsJooyWW3NAeWZbYrLaVA9Y0gFwzEzU 58Z1AaK+uT9qXFaCAGHOrwKxg41kxlW+9ZUzejBZy4eIlQ==</ds:X509Certificate>
+</ds:X509Data>
+</ds:KeyInfo>
+</md:KeyDescriptor>
+<md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</md:NameIDFormat>
+<md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</md:NameIDFormat>
+<md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://engieapppreview.oktapreview.com/app/engieapppreview_apimanagementaxwaydev_1/exk9sfpbymdyj1Xzn0x7/sso/saml?RelayState=https%3A%2F%2Fapi-manager.dev.engieenergia.com.br%2Fapi%2Fportal%2Fv1.4%2Fsso%2Flogin"/>
+<md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://engieapppreview.oktapreview.com/app/engieapppreview_apimanagementaxwaydev_1/exk9sfpbymdyj1Xzn0x7/sso/saml?RelayState=https%3A%2F%2Fapi-manager.dev.engieenergia.com.br%2Fapi%2Fportal%2Fv1.4%2Fsso%2Flogin"/>
+</md:IDPSSODescriptor>
+</md:EntityDescriptor>
